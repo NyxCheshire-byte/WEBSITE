@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title id="Sejarah">FINDING THE LOST VALUE GAME</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light bg-info shadow-sm"> <div class="container-fluid"> 
+    <!-- LEFT SIDE: Logo + Home --> <div class="d-flex align-items-center"> <a class="navbar-brand me-3" href="#">
+         <img src="./img/serviam logo.png" alt="Logo" style="height: 50px;"> </a> <ul class="navbar-nav flex-row"> 
+            <li class="nav-item me-3"> <a class="nav-link" href="Index.html">Home</a> </li> </ul> </div> 
+            <!-- TOGGLER FOR MOBILE --> <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"> <span class="navbar-toggler-icon"></span> </button> 
+             <!-- RIGHT SIDE --> <div class="collapse navbar-collapse justify-content-end" id="navbarRight"> <ul class="navbar-nav"> <li class="nav-item me-3"> <a class="nav-link" href="Index.html#Projects">Projects</a> </li>
+                 <li class="nav-item"> <a class="nav-link" href="ABOUT US.html">About Us</a> </li> </ul> </div> </div> </nav>
+
+    </div>
+</nav>
+<h1 class="main-title text-center mt-4 text-light">
+  THE SEARCH FOR THE LOST VALUES
+</h1>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family:'Press Start 2P', cursive !important;
+
+    /* GIF BACKGROUND */
+    background: url("./img/BG/Night.gif") no-repeat center center fixed;
+    background-size: cover;
+    transition: background 0.3s ease;
+}
+
+
+.btn-game {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.btn-game:hover {
+  transform: scale(1.12); /* pop up */
+  box-shadow: 0 0 12px var(--accent), 0 0 20px rgba(115, 0, 255, 0.6);
+}
+
+.btn-game:active {
+  transform: scale(0.95); /* click effect */
+  box-shadow: 0 0 6px var(--accent);
+}
+
+:root{--accent:#6da0ff;--panel:rgba(18,18,32,0.88);}
+
+html,body{min-height:100%; margin:0;}
+
+.container-main{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
+.panel{width:100%;max-width:980px;background:var(--panel);border-radius:14px;padding:18px;border:3px solid rgba(109,144,255,0.08);box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+#bgImage{width:100%;height:300px;border-radius:10px;background-size:cover;background-position:center;margin-bottom:14px;box-shadow:0 6px 30px rgba(0,0,0,0.45)}
+.scene-inner{display:flex;gap:20px;align-items:flex-end}
+.sprite{width:260px;height:320px;border-radius:10px;overflow:hidden;flex:0 0 260px;display:flex;align-items:flex-end}
+.sprite img{width:100%;height:100%;object-fit:cover;display:block;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
+.dialogue-wrap{flex:1;min-height:160px}
+.dialogue{background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(0,0,0,0.45));border:3px solid var(--accent);border-radius:10px;padding:14px;min-height:160px}
+.dialogue .who{color:var(--accent);font-weight:700;margin-bottom:8px;font-size:13px}
+.dialogue .text{font-size:15px;line-height:1.6;white-space:pre-wrap;color: white;}
+.controls{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.btn-game{background:#07102a;color:#fff;border:2px solid var(--accent);padding:8px 14px;border-radius:10px;cursor:pointer}
+.choices{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;color:#fff}
+.choice{background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid rgb(255, 255, 255)}
+.progress{display:flex;gap:6px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12)}
+.dot.active{background:var(--accent);box-shadow:0 0 8px rgba(109,144,255,0.4)}
+
+@media (max-width:820px){
+.scene-inner{flex-direction:column-reverse}
+.sprite{width:60vw;height:60vw}
+#bgImage{height:220px}
+}
+</style>
+</head>
+<body>
+
+<div class="container-main">
+  <div class="panel">
+    <div id="bgImage"></div>
+    <div class="scene-inner">
+      <div class="sprite" id="spriteBox"><img id="spriteImg" src="https://via.placeholder.com/260x320" alt=""></div>
+      <div class="dialogue-wrap">
+        <div class="dialogue">
+          <div class="who" id="whoLabel"></div>
+          <div class="text" id="dialogueText"></div>
+          <div class="choices" id="choices"></div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="d-flex gap-2">
+        <button id="backBtn" class="btn-game">Back ←</button>
+        <button id="nextBtn" class="btn-game">Next →</button>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="progress" id="progressDots"></div>
+        <button id="resetBtn" class="btn-game">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const frames = [
+  // Majapahit slides 1-24
+  { bg: "./img/BG/1.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Mereka adalah tiga anggota kelompok Brili, Bryan, Byby, membuka buku sejarah tentang Majapahit."},
+  { bg: "./img/BG/2.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Di halaman terakhir buku tertulis kalimat aneh."},
+  { bg: "./img/BG/3.png", sprite: "./img/NAR/2.png", who:"Narrator", text:"“Keadilan lahir ketika hati manusia bersih. Majapahit menunggu kalian.”"},
+  { bg: "./img/BG/4.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Tiba-tiba cahaya menyilaukan, angin berputar kencang, semuanya gelap."},
+  { bg: "./img/BG/5.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Mereka berada di Alun-alun Majapahit. Suasana ramai pedagang, prajurit, bangunan bata merah."},
+  { bg: "./img/BG/6.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Prajurit membawa mereka ke Balairung Agung, raja memimpin rapat."},
+  { bg: "./img/BG/7.png", sprite: "./img/RATU/1.png", who:"Ratu Tribhuwana", text:"Aku Tribhuwana Wijayatunggadewi, penguasa Majapahit."},
+  { bg: "./img/BG/8.png", sprite: "./img/RATU/1.png", who:"Ratu Tribhuwana", text:"Apakah ada maksud mulia yang membawa kalian ke kerajaan kami?"},
+  { bg: "./img/BG/9.png", sprite: "./img/BRYANT/1.png", who:"Bryan", text:"“Kami dari masa depan, ratu. ingin belajar nilai keadilan dan kesetaraan.”"},
+  { bg: "./img/BG/10.png", sprite: "./img/RATU/4.png", who:"Ratu Tribhuwana", text:"“...Baiklah Ikuti saya keliling Keraton”"},
+  { bg: "./img/BG/11.png", sprite: "./img/RATU/3.png", who:"Ratu Tribhuwana", text:"“Nilai Keadilan: Pemimpin harus adil, memastikan semua orang mendapat perlakuan sama.”"},
+  { bg: "./img/BG/12.png", sprite: "./img/RATU/2.png", who:"Ratu Tribhuwana", text:"“Nilai Persatuan: Perbedaan adalah kekuatan, bukan alasan berpecah.”"},
+  { bg: "./img/BG/14.png", sprite: "./img/RATU/2.png", who:"Ratu Tribhuwana", text:"“Nilai Kesetaraan Gender: Perempuan memegang pedang sama berat dengan laki-laki.”"},
+  { bg: "./img/BG/15.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Mereka menyadari Ratu Gitarja adalah contoh pemimpin perempuan yang kuat dan bijaksana."},
+  { bg: "./img/BG/16.png", sprite: "./img/ABBY/2.png", who:"Byby", text:"“Tunggu! kami masih punya pertanyaan…-”"},
+  { bg: "./img/BG/17.png", sprite: "./img/NAR/2.png", who:"Narrator", text:"Cahaya keemasan menelan mereka, suara gamelan berganti deru AC."},
+  { bg: "./img/BG/18.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Mereka kembali di museum, naskah tertutup rapi."},
+  { bg: "./img/BG/19.png", sprite: "./img/NAR/2.png", who:"Narrator", text:"Brili mengedip, Bryan hampir jatuh dari kursi, dan Byby membuka handphonenya."},
+  { bg: "./img/BG/20.png", sprite: "./img/ABBY/1.png", who:"Byby", text:"GUYS! Lihat berita ini!"},
+  { bg: "./img/BG/21.png", sprite: "./img/NAR/2.png", who:"Narrator", text:"Kasus diskriminasi gender, korban tidak mendapat keadilan."},
+  { bg: "./img/BG/22.png", sprite: "./img/BRYANT/2.png", who:"Bryan", text:"Kayaknya kita disuruh jadi penerus nilai Ratu Tribhuwana."},
+  { bg: "./img/BG/23.png", sprite: "./img/BRILI/2.png", who:"Brili", text:"Nilai keadilan, kesetaraan, tanggung jawab…Itu bagian Hak dan Kewajiban yang sudah tertulis di UUD1945 bukan?"},
+  // UUD choice
+  { bg: "./img/BG/24.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Pilih pasal untuk lihat penjelasan:", choices:[
+    {text:"Pasal 28D (Perlakuan Hukum Adil)", goto:24},
+    {text:"Pasal 28G (Perlindungan Diri)", goto:25},
+    {text:"Pasal 28H (Kesejahteraan & Aman)", goto:26}
+  ]},
+  // UUD explanation slides with Kembali button
+  { bg: "./img/BG/25.png", sprite: "./img/NAR/2.png", who:"Narrator", text:"Pasal 28D: Setiap warga berhak atas perlakuan hukum yang adil.", choices:[{text:"Kembali", goto:23}]},
+  { bg: "./img/BG/26.png", sprite: "./img/NAR/2.png", who:"Narrator", text:"Pasal 28G: Setiap orang berhak atas perlindungan diri.", choices:[{text:"Kembali", goto:23}]},
+  { bg: "./img/BG/27.png", sprite: "./img/NAR/2.png", who:"Narrator", text:"Pasal 28H: Berhak atas kesejahteraan dan rasa aman.", choices:[{text:"Kembali", goto:23}]},
+  // Outro slides 31-36
+  { bg: "./img/BG/28.png", sprite: "./img/BRYANT/2.png", who:"Bryan", text:"“Guys… kayaknya bener deh.. kita disuruh jadi penerus nilai keadilan Majapahit?”"},
+  { bg: "./img/BG/29.png", sprite: "./img/BRILI/2.png", who:"Brili", text:"*Brili mengangguk.*"},
+  { bg: "./img/BG/30.png", sprite: "./img/NAR/1.png", who:"Narrator", text:"Byby membaca lagi kalimat misterius di buku tua:"},
+  { bg: "./img/BG/31.png", sprite: "./img/BRILI/1.png", who:"Brili", text:"“Keadilan… dimulai dari kita, kan?”"},
+  { bg: "./img/BG/32.png", sprite: "./img/BRYANT/1.png", who:"Bryan", text:"“Iya. Dari langkah kecil.”"},
+  { bg: "./img/BG/33.png", sprite: "./img/ABBY/1.png", who:"Byby", text:"“Demi masa depan yang setara.”"}
+];
+
+let idx=0;
+const bgImage=document.getElementById('bgImage');
+const spriteImg=document.getElementById('spriteImg');
+const whoLabel=document.getElementById('whoLabel');
+const dialogueText=document.getElementById('dialogueText');
+const choicesEl=document.getElementById('choices');
+const progressEl=document.getElementById('progressDots');
+
+function buildProgress(){
+  progressEl.innerHTML='';
+  for(let i=0;i<frames.length;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===idx?' active':'');
+    progressEl.appendChild(d);
+  }
+}
+
+let writerTimer=null;
+function typewriter(textNode,el,cb){
+  if(writerTimer){clearInterval(writerTimer);writerTimer=null;}
+  el.textContent='';
+  let i=0;
+  writerTimer=setInterval(()=>{
+    el.textContent+=textNode.charAt(i);
+    i++;
+    if(i>=textNode.length){clearInterval(writerTimer);writerTimer=null;if(cb)cb();}
+  },18);
+}
+
+function render(){
+  const f=frames[idx];
+  buildProgress();
+  bgImage.style.backgroundImage=`url('${f.bg}')`;
+  spriteImg.src=f.sprite;
+  whoLabel.textContent=f.who||'';
+  typewriter(f.text,dialogueText,()=>{
+    choicesEl.innerHTML='';
+    if(Array.isArray(f.choices)&&f.choices.length){
+      f.choices.forEach(c=>{
+        const btn=document.createElement('div');
+        btn.className='choice';
+        btn.textContent=c.text;
+        btn.addEventListener('click',()=>{ idx=c.goto; render(); });
+        choicesEl.appendChild(btn);
+      });
+    }
+  });
+}
+
+document.getElementById('nextBtn').addEventListener('click',()=>{ if(idx<frames.length-1){idx++;render();}});
+document.getElementById('backBtn').addEventListener('click',()=>{ if(idx>0){idx--;render();}});
+document.getElementById('resetBtn').addEventListener('click',()=>{ idx=0; render(); });
+document.addEventListener('keydown',(e)=>{ if(e.key==='ArrowRight'||e.key===' ')document.getElementById('nextBtn').click(); if(e.key==='ArrowLeft')document.getElementById('backBtn').click(); });
+
+render();
+</script>
+
+<!-- FOOTER -->
+<footer class="bg-info text-white text-center mt-5 p-3">
+    <p>&copy; 2025 Kelompok 3 X3. All rights reserved</p>
+</footer>
+</body>
+</html>

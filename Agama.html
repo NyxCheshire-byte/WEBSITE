@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title id="Agama">POST-TRUTH RIDDLE</title>
+
+<!-- BOOTSTRAP -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+/* GLOBAL */
+body.terminal-active footer {
+    display: none !important;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Times New Roman", serif;
+
+    /* GIF BACKGROUND */
+    background: url("./img/BG/G.gif") no-repeat center center fixed;
+    background-size: cover;
+    transition: background 0.3s ease;
+}
+
+/* FULL BLACK WHEN TERMINAL ACTIVE */
+body.terminal-active {
+    background: black !important;
+}
+
+/* NAVBAR FIX */
+nav.navbar {
+    width: 100%;
+    margin: 0;
+}
+
+/* FAKE ARTICLE */
+#fakeArticle {
+    max-width: 750px;
+    margin: 40px auto;
+    padding: 25px;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgb(204, 1, 255);
+
+    font-size: 20px;
+    line-height: 1.55;
+}
+
+#fakeArticle h2 {
+    font-size: 28px;
+}
+
+/* CODE BOX */
+#codeBox {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#codeBox input {
+    padding: 10px;
+    width: 200px;
+    font-size: 18px;
+}
+
+#submitBtn {
+    margin-left: 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    background: black;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#submitBtn:hover {
+    background: #333;
+}
+
+/* TERMINAL */
+#terminal {
+    display: none;
+    background: black;
+    color: #00ff55;
+    padding: 20px;
+    margin: 40px auto;
+    max-width: 650px;
+    font-family: "Courier New", monospace;
+    border-radius: 6px;
+    font-size: 18px;
+    white-space: pre-line;
+}
+
+/* REAL ARTICLE */
+#realArticle {
+    display: none;
+    max-width: 750px;
+    margin: 40px auto;
+    padding: 25px;
+    background: white;
+    border: 1px solid #aaa;
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    opacity: 0;
+    transition: opacity 1s ease;
+
+    font-size: 21px;
+    line-height: 1.6;
+}
+
+#realArticle h2 {
+    font-size: 28px;
+}
+
+/* FOOTER FIX */
+footer {
+    width: 100%;
+    margin: 0;
+    padding: 15px;
+}
+</style>
+</head>
+
+<body>
+
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light bg-info shadow-sm"> <div class="container-fluid"> 
+    <!-- LEFT SIDE: Logo + Home --> <div class="d-flex align-items-center"> <a class="navbar-brand me-3" href="#">
+         <img src="./img/serviam logo.png" alt="Logo" style="height: 50px;"> </a> <ul class="navbar-nav flex-row"> 
+            <li class="nav-item me-3"> <a class="nav-link" href="Index.html">Home</a> </li> </ul> </div> 
+            <!-- TOGGLER FOR MOBILE --> <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"> <span class="navbar-toggler-icon"></span> </button> 
+             <!-- RIGHT SIDE --> <div class="collapse navbar-collapse justify-content-end" id="navbarRight"> <ul class="navbar-nav"> <li class="nav-item me-3"> <a class="nav-link" href="Index.html#Projects">Projects</a> </li>
+                 <li class="nav-item"> <a class="nav-link" href="ABOUT US.html">About Us</a> </li> </ul> </div> </div> </nav>
+
+
+
+<!-- ⭐ FAKE ARTICLE -->
+<div id="fakeArticle">
+    <h2><b>“Lilin di Ruang Doa Lama Dilaporkan Menyala Sendiri Meski Sudah Padam. Warga Bingung, Internet Malah Makin Yakin”</b></h2>
+
+    <p>Sebuah ruang doa tua di sebuah sekolah menengah jadi pusat rumor setelah seorang siswa mengaku melihat lilin yang sudah padam tiba-tiba menyala kembali selama beberapa detik. Rekaman CCTV malam itu menjadi bukti paling viral, meski resolusinya buruk dan cahaya lilin terlihat seperti berdeTing di tengah ruangan, padahal tidak ada siapa pun.
+
+Guru piket mengatakan lilin itu mungkin terkena pantulan lampu dari lorong. “Cuma efek optik,” katanya. Tapi beberapa siswa yang lewat malam itu bersumpah mereka melihat cahaya kecil itu bergerak sedikit, seolah mengikuti langkah mereka dengan waRna yang tidak ada sumbernya.
+	
+Rumornya makin intens setelah muncul postingan anon yang mengklaim melihat bayangan pendek mendekati meja lilin, tapi bayangan itu tidak punya kepala. Banyak yang menertawakan klaim ini, tapi beberapa netizen memperbesar gambarnya dan berkata mereka mendengar “gumaman” yang terdengar seperti sUrat lama dibacakan dalam bahasa yang mereka tidak kenal.
+
+Keesokan harinya, sekolah menutup ruang doa itu untuk pengecekan. Namun berita itu justru memperburuk keadaan. Orang-orang mulai membuat teori bahwa pihak sekolah sengaja menutupi sesuatu, terutama setelah pegawai kebersihan mengatakan meja lilin terasa hangat “seperti ada yang baru menguTap”nya dari bawah.
+
+Beberapa murid mulai mengaku melihat cahaya aneh di balik kaca ruangan yang gelap, cahaya kecil yang bergerak cepat lalu hilang ketika didekati, meninggalkan bau lilin terbakar yang terlalu tipis untuk dijelaskan sebagai asap.
+
+Puncaknya, beredar video baru: ruangan kosong, tapi ada suara pelan seperti seseorang menghela napas, tepat sebelum lampu bergoyang tanpa angin. Durasi videonya berakhir sebelum suara terakhir yang terdengar seperti tahaH, suara pendek, nyaris patah, tanpa asal.
+
+Tidak ada yang sepakat apa sebenarnya yang terjadi.
+Publik sibuk berdebat.
+Dan seperti biasa di era post-truth, yang paling dipercaya bukanlah fakta, melainkan versi yang paling menyeramkan.
+.</p>
+
+    <div id="codeBox">
+        <p><b>HINT: LOOK AT THE CAPITAL LETTERS</b></p>
+        <input id="codeInput" placeholder="Enter code…">
+        <button id="submitBtn">Submit</button>
+    </div>
+</div>
+
+<!-- ⭐ TERMINAL -->
+<div id="terminal"></div>
+
+<!-- ⭐ REAL ARTICLE -->
+<div id="realArticle">
+    <h2>POST-TRUTH: OFFICIAL DOCUMENT</h2>
+    <hr>
+    <p><b>Apa itu Post-Truth?</b></p>
+<p> Istilah ini mulai terkenal pada tahun 2016 ketika Oxford Dictionaries menjadikannya Word of the Year. Post-truth menggambarkan situasi ketika fakta objektif kalah pengaruh dibanding emosi dan keyakinan pribadi. Jadi, bukan lagi tentang apa yang benar, tapi apa yang terasa benar.
+Di zaman sekarang, ini kelihatan banget. Informasi dari media sosial tersebar super cepat, tapi jarang di cek dulu. Banyak orang lebih percaya pada sesuatu yang cocok dengan pendapat mereka sendiri, meskipun belum tentu ada buktinya. Kadang rasanya seperti semua orang memegang potongan puzzle yang berbeda, tapi memaksa semuanya cocok, biarpun bentuknya sudah jelas nggak sama.
+</p>
+<p>Contoh:
+ Ada rumor “minum air garam bisa menyembuhkan semua penyakit.” Tanpa bukti, orang tetap percaya karena teman mereka percaya, bukan karena faktanya kuat. Informasi itu akhirnya menyebar seperti bisikan gelap yang berjalan lebih cepat daripada logika.
+</p>
+<p>Dalam konteks ideologi, post-truth bikin banyak kelompok terjebak dalam echo chamber, lingkungan di mana orang hanya mendengar pendapat yang sama dengan dirinya. Lama-lama, ide yang berbeda terasa seperti gangguan, bukan perspektif baru. Pendapat yang salah bisa terdengar benar hanya karena diulang berkali-kali.
+Dari sudut pandang Gereja Katolik, kondisi ini jadi tantangan besar. Gereja mengajarkan bahwa kebenaran bukan sesuatu yang fleksibel sesuai mood, tapi sesuatu yang bersumber dari Tuhan dan harus dicari dengan jujur. Umat diajak untuk tetap kritis, nggak mudah percaya hanya karena sebuah narasi terdengar “enak,” dan selalu berusaha memastikan apakah sesuatu benar atau hanya terlihat benar.
+Pada akhirnya, post-truth mempengaruhi cara kita hidup, menentukan pilihan, bahkan membangun kepercayaan. Kadang kebenaran asli terasa sepi dan kurang dramatis, sementara kebohongan lebih cepat viral.
+ Tantangannya adalah berani memilih yang sepi itu,yang nggak heboh, nggak nyaman, tapi nyata.
+</p>
+</div>
+
+<!-- ⭐ SCRIPT -->
+<script>
+const input = document.getElementById("codeInput");
+const btn = document.getElementById("submitBtn");
+const fake = document.getElementById("fakeArticle");
+const term = document.getElementById("terminal");
+const real = document.getElementById("realArticle");
+
+btn.addEventListener("click", startCheck);
+
+function startCheck() {
+    if (input.value.trim().toUpperCase() === "TRUTH") {
+
+        fake.style.display = "none";
+        document.body.classList.add("terminal-active");
+
+        term.style.display = "block";
+
+        let lines = [
+            "> Loading factual environment...",
+            "> Removing distortions...",
+            "> Checking source credibility...",
+            "> Truth module activated."
+        ];
+
+        let i = 0;
+
+        function typeLine() {
+            if (i < lines.length) {
+                term.textContent += lines[i] + "\n";
+                i++;
+                setTimeout(typeLine, 900);
+            } else {
+                setTimeout(() => {
+                    term.style.display = "none";
+                    document.body.classList.remove("terminal-active");
+
+                    real.style.display = "block";
+                    setTimeout(() => real.style.opacity = 1, 50);
+
+                }, 800);
+            }
+        }
+
+        typeLine();
+    }
+}
+</script>
+
+<!-- ⭐ FOOTER -->
+<footer class="bg-info text-white text-center mt-5">
+  <p>&copy; 2025 Kelompok 3 X3. All rights reserved</p>
+</footer>
+
+</body>
+</html>

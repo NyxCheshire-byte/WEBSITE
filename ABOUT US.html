@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CLASSIFIED — Reveal + Poster</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root{
+    --card-w: 420px;
+    --card-h: 520px;
+    --bg: #0e0e10;
+    --accent: #8a1c1c;
+    --stamp-color: rgba(255,10,10,0.95);
+    --poster-max-w: 1100px;
+    --polaroid-max-h: 320px;
+    --terminal-bg: #0f0f0f;
+    --terminal-paper: #f6f3ee;
+  }
+  *{box-sizing:border-box}
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background: var(--bg);
+    font-family: Inter, Segoe UI, Arial, sans-serif;
+    color: #fff;
+}
+
+
+/* UI layer (always on top) */
+.ui-layer{position:relative; z-index:9999; width:100%; max-width:1200px; display:flex;flex-direction:column;align-items:center; gap:12px}
+
+/* STAGE (perspective for 3D) */
+.stage{perspective:1400px; display:flex;flex-direction:column;align-items:center;gap:18px; width:100%; max-width:1100px}
+
+/* MAIN CARD WRAP (preserve-3d) */
+.card-wrap{
+  width:var(--card-w); height:var(--card-h);
+  position:relative; transform-style:preserve-3d; transition: transform 900ms cubic-bezier(.2,.9,.2,1);
+  -webkit-user-select:none; user-select:none;
+}
+
+/* flipped state */
+.card-wrap.flipped{ transform: rotateY(180deg); }
+
+/* face base */
+.face{
+  position:absolute; inset:0; border-radius:12px; backface-visibility:hidden; overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow: 0 24px 45px rgba(0,0,0,0.6);
+}
+
+/* FRONT (CLASSIFIED COVER) */
+.front{
+  background: linear-gradient(180deg,#3a0000 0%, #120000 100%); border:6px solid #570d0d; padding:26px; gap:10px;
+  transform: rotateY(0deg) translateZ(1px);
+  position:relative;
+}
+.front .title{font-weight:900;font-size:30px;letter-spacing:3px;color:#ffdede;text-shadow:0 2px 12px rgba(0,0,0,0.6)}
+.front .sub{font-size:12px;color:#ffbfbf;opacity:.9;letter-spacing:2px}
+
+/* lock icon pulse */
+.lock{font-size:56px; animation: lockPulse 1.2s infinite alternate}
+@keyframes lockPulse{from{transform:scale(1);opacity:.85}to{transform:scale(1.08);opacity:1}}
+
+/* fingerprint smudge */
+.fingerprint{
+  position:absolute; left:20px; bottom:18px; width:150px; height:150px; opacity:0.14; pointer-events:none;
+  background:url('https://i.imgur.com/3zXwGkH.png') center/contain no-repeat; transform:rotate(-12deg);
+  filter:grayscale(.7) contrast(1.05) blur(.4px);
+}
+
+/* blood overlay */
+.blood{
+  position:absolute; left:-18px; top:-20px; width:140%; height:220px; pointer-events:none; opacity:0.64;
+  background:url('https://i.imgur.com/rsqR9tD.png') center/cover no-repeat; mix-blend-mode:multiply;
+  transform:translateZ(10px);
+}
+
+/* stamp + slam */
+.stamp{
+  position:absolute; right:22px; top:20px; width:130px; height:60px; display:flex;align-items:center;justify-content:center;
+  color:var(--stamp-color); font-weight:900; letter-spacing:4px; transform:rotate(-10deg); opacity:0; pointer-events:none;
+  border:5px solid rgba(255,0,0,0.06);
+}
+.stamp.slam{ animation: slamAnim 420ms cubic-bezier(.2,.9,.2,1) forwards; }
+@keyframes slamAnim {
+  0%{transform:translateY(-120px) rotate(-10deg) scale(.8); opacity:1}
+  60%{transform:translateY(12px) rotate(-6deg) scale(1.05)}
+  100%{transform:translateY(0) rotate(-8deg) scale(1); opacity:1}
+}
+/* stamped mark remains on cover */
+.stamped-mark{
+  position:absolute; left:36px; top:36px; font-weight:900;color:var(--stamp-color);transform:rotate(-8deg);opacity:0;letter-spacing:6px;
+}
+.stamped-mark.visible{animation: fadeScale 250ms ease forwards}
+@keyframes fadeScale{from{opacity:0;transform:scale(.8) rotate(-8deg)}to{opacity:1;transform:scale(1) rotate(-8deg)}}
+
+/* small controls */
+.controls{display:flex;gap:8px;margin-top:8px}
+.btn{background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:#fff;font-weight:700;cursor:pointer}
+.btn.accent{background:var(--accent);border-color:#ff4d4d}
+.btn:active{transform:translateY(1px)}
+
+/* tear overlay (visual) */
+.tear-overlay{position:absolute;inset:0;pointer-events:none; transition: clip-path 700ms ease;}
+
+/* BACK (Dossier + Polaroid + Terminal) */
+.back{
+  transform: rotateY(180deg) translateZ(1px);
+  background:linear-gradient(180deg,#e9e6df, #dbd7cc);
+  border:6px solid #e1dccf; padding:18px; gap:12px; align-items:center; overflow:auto;
+}
+
+/* dossier texture (subtle) */
+.back::before{
+  content:""; position:absolute; inset:0; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect fill="%23efeae1" width="100%" height="100%"/></svg>');
+  background-size:cover; pointer-events:none;
+}
+/* Make the BACK white box taller */
+.back .file-content,
+.back .content-box,
+.back .inner-box {
+    min-height: 800px;   /* adjust height HERE */
+}
+
+
+/* polaroid container */
+.polaroid{
+  width:92%; max-width:360px; background:#fff; border-radius:10px; padding:10px; border:8px solid #f0efea; box-shadow:0 20px 40px rgba(0,0,0,0.35);
+  position:relative; display:flex;flex-direction:column;align-items:center; gap:8px;
+}
+.polaroid img{width:100%; max-height:var(--polaroid-max-h); object-fit:contain; border-radius:6px; display:block}
+.caption{font-size:12px;color:#333; font-weight:800; letter-spacing:1px}
+
+/* flashlight effect */
+.flashlight{
+  position:absolute; inset:0; pointer-events:none; mix-blend-mode:screen;
+  background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.06) 6%, rgba(0,0,0,0.85) 20%);
+  transition: background 100ms linear;
+  border-radius:6px;
+}
+
+/* TERMINAL / TYPEWRITER (DOSSIER STYLE) */
+.terminal {
+  width:92%; max-width:360px; background:var(--terminal-paper); color:#111; border-radius:8px; padding:14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25); font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size:13px; min-height:96px; position:relative; overflow:hidden;
+  border:1px solid rgba(0,0,0,0.06);
+}
+.terminal .term-header { display:flex; gap:8px; align-items:center; margin-bottom:8px;}
+.terminal .term-dot { width:10px;height:10px;border-radius:50%; background:#e05a4f; box-shadow:0 0 0 6px rgba(224,90,79,0.06) }
+.terminal .term-paper { color:#222; line-height:1.45; min-height:60px }
+.terminal .term-cursor{ display:inline-block; width:8px; height:16px; background:#111; margin-left:8px; vertical-align:middle; animation: blink 700ms steps(1) infinite}
+
+/* typewriter fallback small text color */
+.typewriter{
+  display:none;
+}
+
+/* bottom team area (initially hidden until reveal) */
+.team-row{width:100%; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; opacity:0; transform:translateY(12px); transition:opacity 480ms ease, transform 480ms ease}
+.team-row.visible{opacity:1; transform:translateY(0)}
+
+/* mini-cards */
+.mini-card{width:220px; height:140px; perspective:900px}
+.mini-inner{width:100%;height:100%; position:relative; transform-style:preserve-3d; transition: transform 600ms cubic-bezier(.2,.9,.2,1)}
+.mini-inner.flipped{transform:rotateY(180deg)}
+.mini-face{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:12px;box-shadow:0 10px 20px rgba(0,0,0,0.45)}
+.mini-front{background:linear-gradient(180deg,#221111,#3a0000); color:#ffdede; flex-direction:column;gap:6px; position:relative}
+.mini-back{background:#fff;color:#111; transform:rotateY(180deg); flex-direction:column; gap:6px; text-align:center; font-weight:700}
+.mini-stamp{position:absolute; right:8px; top:8px; transform:rotate(-12deg); color:var(--stamp-color); font-weight:900; border:3px solid rgba(255,0,0,0.06); padding:6px 8px;}
+
+/* BIG poster area (hidden until reveal) — removed negative z-index bug */
+.poster-wrapper {
+  width: 100%;
+  display:flex;
+  justify-content:center;
+  margin-top:12px;
+  opacity:0;
+  transform: translateY(16px);
+  transition: opacity 420ms ease, transform 420ms ease;
+  position: relative;
+  z-index: 2;
+}
+.poster-wrapper.visible{
+  opacity:1;
+  transform: translateY(0);
+  pointer-events:auto;
+}
+
+.poster-frame{
+  width:95%; max-width:var(--poster-max-w); background:#fff; padding:22px; border-radius:12px; box-shadow:0 18px 50px rgba(0,0,0,0.5);
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+}
+.poster-frame img{width:100%; height:auto; object-fit:contain; border-radius:6px;}
+
+/* UI buttons & text always on top */
+.ui-controls{position:relative; z-index:9999; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap}
+
+/* accessibility */
+@keyframes blink{50%{opacity:0}}
+
+/* responsive tweaks */
+@media (max-width:880px){
+  :root{--card-w:360px;--card-h:480px}
+  .mini-card{width:33%; min-width:170px}
+}
+@media (max-width:520px){
+  :root{--card-w:320px;--card-h:420px}
+  .team-row{flex-direction:row}
+  .mini-card{width:100%}
+}
+</style>
+    <style>
+        :root {
+            --bg:#111;
+            --accent:#35f2de;
+            --card:#1c1c1c;
+        }
+
+        /* FIXED — reset body so navbar works normally */
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: var(--bg);
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            color: #fff;
+            padding: 0;
+        }
+
+        /* Wrap ONLY your interactive content with flex */
+.content-wrapper {
+    min-height: calc(100vh - 80px); /* allow natural height */
+    overflow: visible;              /* allow page to scroll */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 0;
+}
+
+
+   .navbar {
+    width: 100%;
+    background: #d63c48;
+    padding: 15px 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    position: sticky; /* stays on top when scrolling */
+    top: 0;
+    left: 0;
+    z-index: 9999;   /* make sure nothing covers it */
+}
+
+body, nav {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+    </style>
+
+    <script>
+        AOS.init({ once: true });
+    </script>
+
+</head>
+<body>
+<!-- ===================== NAVBAR (FULL WIDTH NOW) ===================== -->
+<nav class="navbar navbar-expand-lg navbar-light bg-danger shadow-sm w-100">
+    <div class="container-fluid">
+
+        <!-- LEFT SIDE -->
+        <div class="d-flex align-items-center">
+            <a class="navbar-brand me-3" href="#">
+                <img src="./img/serviam logo.png" alt="Logo" style="height: 50px;">
+            </a>
+
+            <ul class="navbar-nav flex-row">
+                <li class="nav-item me-3">
+                    <a class="nav-link" href="Index.html">Home</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- TOGGLER -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- RIGHT SIDE -->
+        <div class="collapse navbar-collapse justify-content-end" id="navbarRight">
+            <ul class="navbar-nav">
+                <li class="nav-item me-3">
+                    <a class="nav-link" href="Index.html#Projects">Projects</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="ABOUT US.html">About Us</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+<div class="content-wrapper">
+
+
+
+<!-- UI top: always-visible buttons / text -->
+<div class="ui-layer">
+  <div class="ui-controls">
+    <button id="backBtn" class="btn btn-danger">BACK</button>
+    <button id="nextBtn" class="btn btn-dark">NEXT</button>
+    <button id="muteBtn" class="btn">MUTE</button>
+  </div>
+  <div style="color:#ddd; font-weight:600; margin-top:6px; text-align:center;">
+    GOVERMENT OFFICIAL ONLY! GOVERMENT OFFICIAL ONLY!
+  </div>
+</div>
+
+<div class="stage" role="main" aria-label="Classified reveal area">
+
+  <!-- Main 3D card -->
+  <div id="mainCard" class="card-wrap" aria-live="polite" aria-atomic="true">
+
+    <!-- FRONT -->
+    <div class="face front" id="frontFace">
+      <div class="blood" aria-hidden="true"></div>
+
+      <div class="lock" aria-hidden="true">🔒</div>
+      <div class="title">CLASSIFIED</div>
+      <div class="sub">AUTHORIZED PERSONNEL ONLY</div>
+
+      <div class="controls">
+        <button id="unlockBtn" class="btn accent" aria-pressed="false">UNLOCK</button>
+        <button id="flipBtn" class="btn" style="display:none">FLIP</button>
+      </div>
+
+      <div id="stamp" class="stamp">CLASSIFIED</div>
+      <div id="stampedMark" class="stamped-mark">CLASSIFIED</div>
+      <div class="fingerprint" aria-hidden="true"></div>
+      <div id="tear" class="tear-overlay" aria-hidden="true"></div>
+    </div>
+
+    <!-- BACK -->
+    <div class="face back" id="backFace">
+
+      <!-- Polaroid (top) -->
+      <div class="polaroid" id="polaroid">
+        <!-- small image for polaroid -->
+        <img id="posterImgPolaroid" src="./img/AGAMA.png" alt="Poster - replace me">
+        <div class="caption">TOP SECRET — FILE 67</div>
+        <div id="flashlight" class="flashlight" aria-hidden="true"></div>
+      </div>
+
+      <!-- Terminal / Typewriter (dossier style) -->
+      <div id="terminal" class="terminal" aria-live="polite" aria-atomic="true">
+        <div class="term-header"><div class="term-dot" aria-hidden="true"></div><div style="font-weight:800;color:#333">CASE FILE TERMINAL</div></div>
+        <div id="termText" class="term-paper"></div>
+        <div id="termCursor" class="term-cursor" style="display:none"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+        <button id="backFlip" class="btn">Secret</button>
+</div>
+    </div>
+  </div>
+
+  <!-- After terminal finishes: BIG POSTER AREA (hidden until reveal) -->
+  <div id="bigPosterSection" class="poster-wrapper" aria-hidden="true">
+    <div class="poster-frame">
+      <!-- IMPORTANT: Replace this URL with your BIG full-size poster (CORS-friendly) -->
+      <img id="bigPosterImg" src="https://via.placeholder.com/1600x2200.png?text=BIG+POSTER+HERE" alt="Big Poster">
+      <div style="font-weight:800; color:#222; letter-spacing:1px">TOP SECRET — FILE 67</div>
+    </div>
+  </div>
+
+  <!-- TEAM MINI-CARDS (reveal after terminal) -->
+  <div id="teamRow" class="team-row" aria-label="Team cards" style="margin-top:8px">
+    <!-- Agent 1 -->
+    <div class="mini-card">
+      <div class="mini-inner" id="mini1">
+        <div class="mini-face mini-front">
+          <div style="text-align:left">
+            <div style="font-size:20px;font-weight:900">AGENT #1</div>
+            <div style="margin-top:6px;color:#ffdede;font-weight:700">DEVELOPER</div>
+          </div>
+          <div class="mini-stamp">CLASSIFIED</div>
+        </div>
+        <div class="mini-face mini-back">
+          <div style="font-size:16px">Name: <strong>Brili</strong></div>
+          <div>Jobdesk: <strong>Web Developer</strong></div>
+          <div>ID: <strong>X3-007</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent 2 -->
+    <div class="mini-card">
+      <div class="mini-inner" id="mini2">
+        <div class="mini-face mini-front">
+          <div style="text-align:left">
+            <div style="font-size:20px;font-weight:900">AGENT #2</div>
+            <div style="margin-top:6px;color:#ffdede;font-weight:700">INSPECTOR</div>
+          </div>
+          <div class="mini-stamp">CLASSIFIED</div>
+        </div>
+        <div class="mini-face mini-back">
+          <div style="font-size:16px">Name: <strong>Bryan</strong></div>
+          <div>Jobdesk: <strong>Researcher and Anylyst</strong></div>
+          <div>ID: <strong>X3-008</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent 3 -->
+    <div class="mini-card">
+      <div class="mini-inner" id="mini3">
+        <div class="mini-face mini-front">
+          <div style="text-align:left">
+            <div style="font-size:20px;font-weight:900">AGENT #3</div>
+            <div style="margin-top:6px;color:#ffdede;font-weight:700">ESCAPE ARTIST</div>
+          </div>
+          <div class="mini-stamp">CLASSIFIED</div>
+        </div>
+        <div class="mini-face mini-back">
+          <div style="font-size:16px">Name: <strong>Abby</strong></div>
+          <div>Jobdesk: <strong>Concept maker, WANTED Artist</strong></div>
+          <div>ID: <strong>X3-022</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- AUDIO -->
+<audio id="sndTear" src="https://actions.google.com/sounds/v1/foley/paper_tearing.ogg" preload="auto"></audio>
+<audio id="sndStamp" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg" preload="auto"></audio>
+<audio id="sndType" src="https://actions.google.com/sounds/v1/foley/typed_character.ogg" preload="auto"></audio>
+
+<script>
+/* ---------- ELEMENTS ---------- */
+const mainCard = document.getElementById('mainCard');
+const unlockBtn = document.getElementById('unlockBtn');
+const flipBtn = document.getElementById('flipBtn');
+const backFlip = document.getElementById('backFlip');
+const stamp = document.getElementById('stamp');
+const stampedMark = document.getElementById('stampedMark');
+const tear = document.getElementById('tear');
+const polaroid = document.getElementById('polaroid');
+const flashlight = document.getElementById('flashlight');
+const posterImgPolaroid = document.getElementById('posterImgPolaroid');
+
+const termText = document.getElementById('termText');
+const termCursor = document.getElementById('termCursor');
+
+const bigPosterSection = document.getElementById('bigPosterSection');
+const bigPosterImg = document.getElementById('bigPosterImg');
+const teamRow = document.getElementById('teamRow');
+
+const sndTear = document.getElementById('sndTear');
+const sndStamp = document.getElementById('sndStamp');
+const sndType = document.getElementById('sndType');
+
+let unlocked = false;
+let muted = false;
+
+/* ---------- Replace images here ---------- */
+posterImgPolaroid.src = "./img/ABOUT US.png"; // small polaroid
+bigPosterImg.src = "./img/ABOUT US.png"; // big poster
+
+/* ---------- MUTE button ---------- */
+document.getElementById('muteBtn').addEventListener('click', () => {
+  muted = !muted;
+  document.getElementById('muteBtn').textContent = muted ? 'UNMUTE' : 'MUTE';
+});
+
+/* ---------- Unlock sequence (unchanged) ---------- */
+unlockBtn.addEventListener('click', async () => {
+  if (unlocked) return;
+  unlocked = true;
+  unlockBtn.disabled = true;
+  unlockBtn.textContent = "UNLOCKING...";
+
+  // 1) small tear visual + play tear sound
+  if (!muted) { try { sndTear.currentTime = 0; sndTear.play(); } catch(e){} }
+  tear.style.clipPath = "polygon(0 0,100% 5%,100% 12%,100% 100%,0% 100%)";
+  tear.style.background = "linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.06))";
+  document.getElementById('frontFace').style.transform = "translateY(-6px) rotate(-1deg)";
+
+  await new Promise(r => setTimeout(r, 420));
+
+  // 2) stamp slam + sound
+  stamp.classList.add('slam');
+  stampedMark.classList.add('visible');
+  if (!muted) { try { sndStamp.currentTime = 0; sndStamp.play(); } catch(e){} }
+  await new Promise(r => setTimeout(r, 420));
+
+  // show flip button (kept for manual use) but also auto-flip to show terminal
+  flipBtn.style.display = 'inline-block';
+  flipBtn.classList.add('accent');
+
+  unlockBtn.textContent = "UNLOCKED";
+
+  // small delay then auto-flip to start terminal (you can remove autoFlip by commenting next line)
+  setTimeout(() => flipToBackAndRunTerminal(), 250);
+});
+
+/* ---------- Flip main card helper ---------- */
+function flipToBackAndRunTerminal(){
+  // flip card to back
+  mainCard.classList.add('flipped');
+  // hide manual flip button (we auto-flipped)
+  flipBtn.style.display = 'none';
+
+  // ensure poster & mini cards hidden until terminal finishes
+  bigPosterSection.classList.remove('visible');
+  teamRow.classList.remove('visible');
+  bigPosterSection.setAttribute('aria-hidden', 'true');
+
+  // start typewriter after flip animation settles
+  setTimeout(startTerminalTypewriter, 600);
+}
+
+backFlip.addEventListener('click', () => {
+  // manual return to front: hide big poster/team if they were visible
+  mainCard.classList.remove('flipped');
+  bigPosterSection.classList.remove('visible');
+  teamRow.classList.remove('visible');
+  bigPosterSection.setAttribute('aria-hidden', 'true');
+  // allow flipBtn to reappear for next time
+  flipBtn.style.display = 'inline-block';
+});
+
+/* ---------- flashlight (same as before) ---------- */
+function setFlash(xPct, yPct){
+  flashlight.style.setProperty('--mx', xPct + '%');
+  flashlight.style.setProperty('--my', yPct + '%');
+}
+polaroid.addEventListener('mousemove', (e) => {
+  const r = polaroid.getBoundingClientRect();
+  const x = ((e.clientX - r.left) / r.width) * 100;
+  const y = ((e.clientY - r.top) / r.height) * 100;
+  setFlash(x, y);
+});
+polaroid.addEventListener('touchmove', (e) => {
+  const r = polaroid.getBoundingClientRect();
+  const t = e.touches[0];
+  const x = ((t.clientX - r.left) / r.width) * 100;
+  const y = ((t.clientY - r.top) / r.height) * 100;
+  setFlash(x, y);
+}, {passive:true});
+polaroid.addEventListener('mouseleave', () => setFlash(50,50));
+polaroid.addEventListener('touchend', () => setFlash(50,50));
+
+/* ---------- TERMINAL TYPEWRITER (DOSSIER STYLE) ---------- */
+const terminalMessageLines = [
+  "CONFIDENTIAL — EYES ONLY.",
+  "File contains restricted documents.",
+  "Proceed with authorization code.",
+];
+
+let termLine = 0;
+let termChar = 0;
+let termRunning = false;
+
+function startTerminalTypewriter(){
+  if (termRunning) return;
+  termRunning = true;
+  termText.innerHTML = "";       // clear
+  termCursor.style.display = "inline-block";
+  termLine = 0;
+  termChar = 0;
+
+  // typing function that types per character, per line
+  function typeStep(){
+    if (termLine >= terminalMessageLines.length){
+      // done: hide cursor then reveal poster & mini cards
+      termCursor.style.display = "none";
+      setTimeout(revealPosterAndTeam, 400);
+      return;
+    }
+    const line = terminalMessageLines[termLine];
+    if (termChar <= line.length){
+      // write characters for the current line
+      const visible = escapeHtml(line.slice(0, termChar));
+      // rebuild content: previous lines + current partial line
+      const prev = terminalMessageLines.slice(0, termLine).map(escapeHtml).join("<br>");
+      termText.innerHTML = (prev ? prev + "<br>" : "") + visible;
+      if (!muted) { try { sndType.currentTime = 0; sndType.play(); } catch(e){} }
+      termChar++;
+      // variable speed: faster for short lines, slower for long
+      const delay = 18 + Math.random()*50;
+      setTimeout(typeStep, delay);
+    } else {
+      // finished line: move to next after a short pause
+      termLine++;
+      termChar = 0;
+      setTimeout(typeStep, 360);
+    }
+  }
+
+  setTimeout(typeStep, 180);
+
+  // utility for safe text
+  function escapeHtml(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+}
+
+/* ---------- Reveal poster & mini cards (fade-in) ---------- */
+function revealPosterAndTeam(){
+  // reveal big poster
+  bigPosterSection.classList.add('visible');
+  bigPosterSection.setAttribute('aria-hidden', 'false');
+  // reveal team cards
+  teamRow.classList.add('visible');
+
+  // smooth scroll so user notices the poster & cards
+  setTimeout(() => {
+    bigPosterSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 60);
+}
+
+/* ---------- MINI CARDS FLIP ---------- */
+function bindMini(id){
+  const inner = document.getElementById(id);
+  inner.addEventListener('click', () => {
+    inner.classList.toggle('flipped');
+  });
+}
+bindMini('mini1'); bindMini('mini2'); bindMini('mini3');
+
+/* accessibility: keyboard flip for main card */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && unlocked && !mainCard.classList.contains('flipped')){
+    flipToBackAndRunTerminal();
+  }
+});
+
+/* prevent image cropping: polaroid & poster use object-fit:contain (CSS already set) */
+</script>
+
+</body>
+</html>
